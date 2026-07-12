@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>payments-service · demo console</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --ink: #111827;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --accent: #4f46e5;
+    --green: #059669;
+    --red: #dc2626;
+    --amber: #d97706;
+    --purple: #7c3aed;
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--ink); line-height: 1.5;
+    padding: 32px 20px 64px;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  header { margin-bottom: 28px; }
+  header h1 { font-size: 1.6rem; letter-spacing: -0.02em; }
+  header p { color: var(--muted); max-width: 640px; margin-top: 6px; font-size: 0.95rem; }
+  header a { color: var(--accent); text-decoration: none; }
+  .grid { display: grid; grid-template-columns: 420px 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 880px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 22px;
+  }
+  .card h2 { font-size: 1.02rem; margin-bottom: 14px; }
+  label { display: block; font-size: 0.78rem; color: var(--muted); margin: 12px 0 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+  input, select {
+    width: 100%; padding: 9px 11px; font-size: 0.95rem;
+    border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink);
+  }
+  input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+  .row { display: flex; gap: 10px; }
+  .row > div { flex: 1; }
+  .keyrow { display: flex; gap: 8px; align-items: stretch; }
+  .keyrow input { flex: 1; font-family: var(--mono); font-size: 0.85rem; }
+  button {
+    padding: 10px 16px; font-size: 0.92rem; font-weight: 600;
+    border: none; border-radius: 8px; cursor: pointer;
+    background: var(--accent); color: #fff;
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:active { transform: translateY(1px); }
+  button.secondary { background: #eef0f4; color: var(--ink); }
+  button.small { padding: 7px 12px; font-size: 0.82rem; }
+  button:disabled { opacity: 0.5; cursor: default; }
+  .actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  .hint { font-size: 0.8rem; color: var(--muted); margin-top: 12px; }
+  .hint code { font-family: var(--mono); background: #eef0f4; padding: 1px 5px; border-radius: 4px; }
+
+  .log { display: flex; flex-direction: column; gap: 10px; max-height: 620px; overflow-y: auto; }
+  .entry {
+    border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+    font-size: 0.86rem; background: #fcfcfd;
+  }
+  .entry .top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+  .method { font-family: var(--mono); font-weight: 700; font-size: 0.75rem; }
+  .code { font-family: var(--mono); font-weight: 700; }
+  .code.ok { color: var(--green); }
+  .code.warn { color: var(--amber); }
+  .code.err { color: var(--red); }
+  .badge {
+    font-size: 0.7rem; font-weight: 700; padding: 2px 9px; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .badge.SUCCEEDED { background: #d1fae5; color: var(--green); }
+  .badge.FAILED { background: #fee2e2; color: var(--red); }
+  .badge.PENDING { background: #fef3c7; color: var(--amber); }
+  .badge.REFUNDED { background: #ede9fe; color: var(--purple); }
+  .note { font-size: 0.78rem; color: var(--muted); margin-left: auto; }
+  pre {
+    font-family: var(--mono); font-size: 0.76rem; white-space: pre-wrap; word-break: break-all;
+    background: #f3f4f6; border-radius: 8px; padding: 10px; margin-top: 8px; color: #374151;
+  }
+  .entry .idline { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+  .entry .idline button { margin-left: 6px; }
+  .empty { color: var(--muted); font-size: 0.9rem; padding: 24px; text-align: center; }
+  .pill-links { display: flex; gap: 14px; margin-top: 10px; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>payments-service <span style="color:var(--muted); font-weight:400;">demo console</span></h1>
+    <p>
+      A resilient payment API: idempotency keys prevent double charges, a circuit breaker absorbs
+      gateway failures, and refunds enforce state transitions. Try it below — or read the
+      <a href="https://github.com/avocadocodes/springboot-payments-service" target="_blank" rel="noreferrer">source & case study</a>.
+    </p>
+    <div class="pill-links">
+      <a href="/swagger-ui.html">OpenAPI / Swagger</a>
+      <a href="/actuator/health">Health</a>
+      <a href="/actuator/prometheus">Metrics</a>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Create a payment</h2>
+      <div class="row">
+        <div>
+          <label for="amount">Amount</label>
+          <input id="amount" type="number" step="0.01" min="0.01" value="49.99">
+        </div>
+        <div>
+          <label for="currency">Currency</label>
+          <select id="currency">
+            <option>USD</option><option>INR</option><option>EUR</option><option>GBP</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="customer">Customer ID</label>
+          <input id="customer" value="cust-1001">
+        </div>
+        <div>
+          <label for="method">Method</label>
+          <select id="method">
+            <option>CARD</option><option>ACH</option><option>WIRE</option><option>WALLET</option>
+          </select>
+        </div>
+      </div>
+      <label for="idem">Idempotency key</label>
+      <div class="keyrow">
+        <input id="idem" spellcheck="false">
+        <button class="secondary small" id="regen" title="Generate a new key">↻ new</button>
+      </div>
+      <div class="actions">
+        <button id="create">Create payment</button>
+        <button class="secondary" id="replay" title="Send the exact same request and key again">Replay same key</button>
+      </div>
+      <p class="hint">
+        <strong>Try this:</strong> click <em>Create payment</em>, then <em>Replay same key</em> —
+        the API returns the <em>same payment id</em> with <code>200</code> instead of charging twice.
+        The simulated gateway also fails randomly; failed calls retry and fall back to a
+        <code>FAILED</code> payment instead of hanging.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Activity</h2>
+      <div class="log" id="log">
+        <div class="empty">No requests yet — create a payment to get started.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const log = $("log");
+
+  function newKey() {
+    $("idem").value = "demo-" + crypto.randomUUID().slice(0, 13);
+  }
+  newKey();
+  $("regen").addEventListener("click", newKey);
+
+  function codeClass(status) {
+    if (status >= 200 && status < 300) return "ok";
+    if (status >= 400 && status < 500) return "warn";
+    return "err";
+  }
+
+  function addEntry({ method, path, status, body, note }) {
+    if (log.querySelector(".empty")) log.innerHTML = "";
+    const el = document.createElement("div");
+    el.className = "entry";
+    const state = body && body.status ? `<span class="badge ${body.status}">${body.status}</span>` : "";
+    const noteHtml = note ? `<span class="note">${note}</span>` : "";
+    let idline = "";
+    if (body && body.id) {
+      idline = `<div class="idline">id: ${body.id}
+        <button class="secondary small" onclick="fetchPayment('${body.id}')">fetch</button>
+        <button class="secondary small" onclick="refundPayment('${body.id}')">refund</button></div>`;
+    }
+    el.innerHTML = `
+      <div class="top">
+        <span class="method">${method}</span>
+        <span style="font-family:var(--mono); font-size:0.78rem;">${path}</span>
+        <span class="code ${codeClass(status)}">${status}</span>
+        ${state}${noteHtml}
+      </div>
+      ${idline}
+      <pre>${JSON.stringify(body, null, 2)}</pre>`;
+    log.prepend(el);
+  }
+
+  async function call(method, path, { headers = {}, body, note } = {}) {
+    try {
+      const res = await fetch(path, {
+        method,
+        headers: { "Content-Type": "application/json", ...headers },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      let data = null;
+      try { data = await res.json(); } catch { data = { raw: await res.text() }; }
+      addEntry({ method, path, status: res.status, body: data, note });
+      return data;
+    } catch (e) {
+      addEntry({ method, path, status: 0, body: { error: String(e) }, note: "network error" });
+    }
+  }
+
+  function payload() {
+    return {
+      amount: parseFloat($("amount").value),
+      currency: $("currency").value,
+      customerId: $("customer").value,
+      method: $("method").value,
+    };
+  }
+
+  $("create").addEventListener("click", () =>
+    call("POST", "/api/v1/payments", {
+      headers: { "Idempotency-Key": $("idem").value },
+      body: payload(),
+      note: "key: " + $("idem").value,
+    })
+  );
+
+  $("replay").addEventListener("click", () =>
+    call("POST", "/api/v1/payments", {
+      headers: { "Idempotency-Key": $("idem").value },
+      body: payload(),
+      note: "replayed key: " + $("idem").value,
+    })
+  );
+
+  window.fetchPayment = (id) => call("GET", "/api/v1/payments/" + id);
+  window.refundPayment = (id) => call("POST", "/api/v1/payments/" + id + "/refund", { note: "refund attempt" });
+</script>
+</body>
+</html>
