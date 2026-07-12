@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>payments-service · demo console</title>
+<title>DevMart · powered by payments-service</title>
 <style>
   :root {
     --bg: #f6f7f9;
@@ -22,32 +22,45 @@
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: var(--bg); color: var(--ink); line-height: 1.5;
-    padding: 32px 20px 64px;
+    padding: 28px 20px 64px;
   }
-  .wrap { max-width: 1060px; margin: 0 auto; }
-  header { margin-bottom: 28px; }
-  header h1 { font-size: 1.6rem; letter-spacing: -0.02em; }
-  header p { color: var(--muted); max-width: 640px; margin-top: 6px; font-size: 0.95rem; }
-  header a { color: var(--accent); text-decoration: none; }
-  .grid { display: grid; grid-template-columns: 420px 1fr; gap: 20px; align-items: start; }
-  @media (max-width: 880px) { .grid { grid-template-columns: 1fr; } }
-  .card {
-    background: var(--card); border: 1px solid var(--line);
-    border-radius: 12px; padding: 22px;
-  }
-  .card h2 { font-size: 1.02rem; margin-bottom: 14px; }
-  label { display: block; font-size: 0.78rem; color: var(--muted); margin: 12px 0 4px; text-transform: uppercase; letter-spacing: 0.05em; }
-  input, select {
-    width: 100%; padding: 9px 11px; font-size: 0.95rem;
-    border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink);
-  }
-  input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
-  .row { display: flex; gap: 10px; }
-  .row > div { flex: 1; }
-  .keyrow { display: flex; gap: 8px; align-items: stretch; }
-  .keyrow input { flex: 1; font-family: var(--mono); font-size: 0.85rem; }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+  header h1 { font-size: 1.5rem; letter-spacing: -0.02em; }
+  header .sub { color: var(--muted); font-size: 0.9rem; }
+  .intro { color: var(--muted); font-size: 0.92rem; max-width: 760px; margin-bottom: 22px; }
+  .intro a { color: var(--accent); text-decoration: none; }
+  .grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 940px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .card h2 { font-size: 1rem; margin-bottom: 14px; }
+  .card + .card { margin-top: 20px; }
+
+  /* Products */
+  .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .product { border: 1px solid var(--line); border-radius: 10px; padding: 14px; text-align: center; }
+  .product .emoji { font-size: 2rem; }
+  .product .name { font-size: 0.86rem; font-weight: 600; margin-top: 6px; }
+  .product .price { font-family: var(--mono); font-size: 0.82rem; color: var(--muted); margin: 2px 0 10px; }
+  .product button { width: 100%; }
+
+  /* Cart */
+  .cart-line { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 4px 0; }
+  .cart-line .qty { color: var(--muted); }
+  .total { display: flex; justify-content: space-between; border-top: 1px solid var(--line); margin-top: 8px; padding-top: 10px; font-weight: 700; }
+  .checkout-row { display: flex; gap: 10px; margin-top: 14px; }
+  .checkout-row select { padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; font-size: 0.9rem; }
+  .empty-cart { color: var(--muted); font-size: 0.88rem; }
+
+  /* Orders */
+  .order { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 0.88rem; margin-bottom: 10px; }
+  .order .top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .order .items { color: var(--muted); font-size: 0.82rem; margin-top: 2px; }
+  .order .pid { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-top: 4px; word-break: break-all; }
+  .order .btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+
   button {
-    padding: 10px 16px; font-size: 0.92rem; font-weight: 600;
+    padding: 9px 14px; font-size: 0.88rem; font-weight: 600;
     border: none; border-radius: 8px; cursor: pointer;
     background: var(--accent); color: #fff;
     transition: filter 0.15s ease, transform 0.1s ease;
@@ -55,194 +68,273 @@
   button:hover { filter: brightness(1.08); }
   button:active { transform: translateY(1px); }
   button.secondary { background: #eef0f4; color: var(--ink); }
-  button.small { padding: 7px 12px; font-size: 0.82rem; }
+  button.small { padding: 6px 11px; font-size: 0.78rem; }
   button:disabled { opacity: 0.5; cursor: default; }
-  .actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
-  .hint { font-size: 0.8rem; color: var(--muted); margin-top: 12px; }
-  .hint code { font-family: var(--mono); background: #eef0f4; padding: 1px 5px; border-radius: 4px; }
 
-  .log { display: flex; flex-direction: column; gap: 10px; max-height: 620px; overflow-y: auto; }
-  .entry {
-    border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
-    font-size: 0.86rem; background: #fcfcfd;
-  }
-  .entry .top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
-  .method { font-family: var(--mono); font-weight: 700; font-size: 0.75rem; }
-  .code { font-family: var(--mono); font-weight: 700; }
-  .code.ok { color: var(--green); }
-  .code.warn { color: var(--amber); }
-  .code.err { color: var(--red); }
   .badge {
-    font-size: 0.7rem; font-weight: 700; padding: 2px 9px; border-radius: 999px;
+    font-size: 0.68rem; font-weight: 700; padding: 2px 9px; border-radius: 999px;
     text-transform: uppercase; letter-spacing: 0.04em;
   }
   .badge.SUCCEEDED { background: #d1fae5; color: var(--green); }
   .badge.FAILED { background: #fee2e2; color: var(--red); }
   .badge.PENDING { background: #fef3c7; color: var(--amber); }
   .badge.REFUNDED { background: #ede9fe; color: var(--purple); }
-  .note { font-size: 0.78rem; color: var(--muted); margin-left: auto; }
-  pre {
-    font-family: var(--mono); font-size: 0.76rem; white-space: pre-wrap; word-break: break-all;
-    background: #f3f4f6; border-radius: 8px; padding: 10px; margin-top: 8px; color: #374151;
+
+  /* Dev console */
+  .dev h2 { display: flex; align-items: center; gap: 10px; }
+  .dev h2 .hintlabel { font-size: 0.72rem; color: var(--muted); font-weight: 400; }
+  .log { display: flex; flex-direction: column; gap: 10px; max-height: 560px; overflow-y: auto; }
+  .entry { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 0.82rem; background: #fcfcfd; }
+  .entry .top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .method { font-family: var(--mono); font-weight: 700; font-size: 0.72rem; }
+  .path { font-family: var(--mono); font-size: 0.74rem; }
+  .code { font-family: var(--mono); font-weight: 700; }
+  .code.ok { color: var(--green); }
+  .code.warn { color: var(--amber); }
+  .code.err { color: var(--red); }
+  .note { font-size: 0.72rem; color: var(--muted); margin-left: auto; }
+  pre { font-family: var(--mono); font-size: 0.7rem; white-space: pre-wrap; word-break: break-all; background: #f3f4f6; border-radius: 8px; padding: 8px; margin-top: 6px; color: #374151; }
+  .empty { color: var(--muted); font-size: 0.85rem; padding: 18px; text-align: center; }
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: #fff; padding: 12px 22px; border-radius: 10px;
+    font-size: 0.9rem; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+    max-width: 90vw; text-align: center;
   }
-  .entry .idline { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
-  .entry .idline button { margin-left: 6px; }
-  .empty { color: var(--muted); font-size: 0.9rem; padding: 24px; text-align: center; }
-  .pill-links { display: flex; gap: 14px; margin-top: 10px; font-size: 0.85rem; }
+  .toast.show { opacity: 1; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>payments-service <span style="color:var(--muted); font-weight:400;">demo console</span></h1>
-    <p>
-      A resilient payment API: idempotency keys prevent double charges, a circuit breaker absorbs
-      gateway failures, and refunds enforce state transitions. Try it below — or read the
-      <a href="https://github.com/avocadocodes/springboot-payments-service" target="_blank" rel="noreferrer">source & case study</a>.
-    </p>
-    <div class="pill-links">
-      <a href="/swagger-ui.html">OpenAPI / Swagger</a>
-      <a href="/actuator/health">Health</a>
-      <a href="/actuator/prometheus">Metrics</a>
-    </div>
+    <h1>🛒 DevMart</h1>
+    <span class="sub">a demo store built on <strong>payments-service</strong> — a resilient Spring Boot payment API</span>
   </header>
+  <p class="intro">
+    Buy something below. The checkout calls a real payment API with <strong>idempotency keys</strong>
+    (double-clicks and network retries can never double-charge), a <strong>circuit breaker</strong> around a
+    deliberately flaky gateway (some payments fail on purpose — retry them), and <strong>state-checked refunds</strong>.
+    Watch the developer console fill up as you shop ·
+    <a href="https://github.com/avocadocodes/springboot-payments-service" target="_blank" rel="noreferrer">source &amp; case study</a> ·
+    <a href="/swagger-ui.html">API docs</a>
+  </p>
 
   <div class="grid">
-    <div class="card">
-      <h2>Create a payment</h2>
-      <div class="row">
-        <div>
-          <label for="amount">Amount</label>
-          <input id="amount" type="number" step="0.01" min="0.01" value="49.99">
-        </div>
-        <div>
-          <label for="currency">Currency</label>
-          <select id="currency">
-            <option>USD</option><option>INR</option><option>EUR</option><option>GBP</option>
-          </select>
-        </div>
+    <div>
+      <div class="card">
+        <h2>Shop</h2>
+        <div class="products" id="products"></div>
       </div>
-      <div class="row">
-        <div>
-          <label for="customer">Customer ID</label>
-          <input id="customer" value="cust-1001">
-        </div>
-        <div>
-          <label for="method">Method</label>
-          <select id="method">
-            <option>CARD</option><option>ACH</option><option>WIRE</option><option>WALLET</option>
-          </select>
-        </div>
+
+      <div class="card">
+        <h2>Cart</h2>
+        <div id="cart"><p class="empty-cart">Cart is empty — add something above.</p></div>
       </div>
-      <label for="idem">Idempotency key</label>
-      <div class="keyrow">
-        <input id="idem" spellcheck="false">
-        <button class="secondary small" id="regen" title="Generate a new key">↻ new</button>
+
+      <div class="card">
+        <h2>Your orders</h2>
+        <div id="orders"><p class="empty-cart">No orders yet.</p></div>
       </div>
-      <div class="actions">
-        <button id="create">Create payment</button>
-        <button class="secondary" id="replay" title="Send the exact same request and key again">Replay same key</button>
-      </div>
-      <p class="hint">
-        <strong>Try this:</strong> click <em>Create payment</em>, then <em>Replay same key</em> —
-        the API returns the <em>same payment id</em> with <code>200</code> instead of charging twice.
-        The simulated gateway also fails randomly; failed calls retry and fall back to a
-        <code>FAILED</code> payment instead of hanging.
-      </p>
     </div>
 
-    <div class="card">
-      <h2>Activity</h2>
+    <div class="card dev">
+      <h2>Developer console <span class="hintlabel">— every API call the store makes, live</span></h2>
       <div class="log" id="log">
-        <div class="empty">No requests yet — create a payment to get started.</div>
+        <div class="empty">Requests will appear here as you shop.</div>
       </div>
     </div>
   </div>
 </div>
+<div class="toast" id="toast"></div>
 
 <script>
+  const PRODUCTS = [
+    { id: "kb",   emoji: "⌨️", name: "Mech Keyboard",  price: 89.99 },
+    { id: "duck", emoji: "🦆", name: "Debug Duck",      price: 4.99 },
+    { id: "cof",  emoji: "☕", name: "Coffee Beans 1kg", price: 18.50 },
+    { id: "mon",  emoji: "🖥️", name: "Monitor Stand",   price: 34.00 },
+    { id: "cbl",  emoji: "🔌", name: "USB-C Cable",      price: 9.75 },
+    { id: "bag",  emoji: "🎒", name: "Laptop Bag",       price: 54.25 },
+  ];
+  const cart = {};   // id -> qty
+  const orders = []; // { paymentId, items, amount, status, idemKey }
+
   const $ = (id) => document.getElementById(id);
+  const money = (n) => "$" + n.toFixed(2);
+
+  function toast(msg) {
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(t._h);
+    t._h = setTimeout(() => t.classList.remove("show"), 3200);
+  }
+
+  /* ---------- rendering ---------- */
+  function renderProducts() {
+    $("products").innerHTML = PRODUCTS.map(p => `
+      <div class="product">
+        <div class="emoji">${p.emoji}</div>
+        <div class="name">${p.name}</div>
+        <div class="price">${money(p.price)}</div>
+        <button class="secondary small" onclick="addToCart('${p.id}')">Add to cart</button>
+      </div>`).join("");
+  }
+
+  function cartTotal() {
+    return Object.entries(cart).reduce((s, [id, q]) =>
+      s + PRODUCTS.find(p => p.id === id).price * q, 0);
+  }
+
+  function renderCart() {
+    const entries = Object.entries(cart);
+    if (!entries.length) {
+      $("cart").innerHTML = '<p class="empty-cart">Cart is empty — add something above.</p>';
+      return;
+    }
+    const lines = entries.map(([id, q]) => {
+      const p = PRODUCTS.find(x => x.id === id);
+      return `<div class="cart-line"><span>${p.emoji} ${p.name} <span class="qty">× ${q}</span></span><span>${money(p.price * q)}</span></div>`;
+    }).join("");
+    $("cart").innerHTML = `
+      ${lines}
+      <div class="total"><span>Total</span><span>${money(cartTotal())}</span></div>
+      <div class="checkout-row">
+        <select id="method"><option>CARD</option><option>WALLET</option><option>ACH</option><option>WIRE</option></select>
+        <button id="pay" onclick="checkout()">Pay ${money(cartTotal())}</button>
+        <button class="secondary" onclick="clearCart()">Clear</button>
+      </div>`;
+  }
+
+  function renderOrders() {
+    if (!orders.length) {
+      $("orders").innerHTML = '<p class="empty-cart">No orders yet.</p>';
+      return;
+    }
+    $("orders").innerHTML = orders.map((o, i) => `
+      <div class="order">
+        <div class="top">
+          <strong>Order #${orders.length - i}</strong>
+          <span class="badge ${o.status}">${o.status}</span>
+          <span style="margin-left:auto; font-family:var(--mono); font-size:0.8rem;">${money(o.amount)}</span>
+        </div>
+        <div class="items">${o.items}</div>
+        <div class="pid">payment: ${o.paymentId}</div>
+        <div class="btns">
+          ${o.status === "FAILED" ? `<button class="small" onclick="retryOrder(${i})">Retry payment</button>` : ""}
+          ${o.status === "SUCCEEDED" ? `<button class="small secondary" onclick="duplicateSubmit(${i})">Simulate duplicate submit</button>
+          <button class="small secondary" onclick="refundOrder(${i})">Refund</button>` : ""}
+        </div>
+      </div>`).reverse().join("");
+  }
+
+  /* ---------- dev console ---------- */
   const log = $("log");
-
-  function newKey() {
-    $("idem").value = "demo-" + crypto.randomUUID().slice(0, 13);
-  }
-  newKey();
-  $("regen").addEventListener("click", newKey);
-
-  function codeClass(status) {
-    if (status >= 200 && status < 300) return "ok";
-    if (status >= 400 && status < 500) return "warn";
-    return "err";
-  }
-
-  function addEntry({ method, path, status, body, note }) {
+  function codeClass(s) { return s >= 200 && s < 300 ? "ok" : s >= 400 && s < 500 ? "warn" : "err"; }
+  function logEntry({ method, path, status, body, note }) {
     if (log.querySelector(".empty")) log.innerHTML = "";
     const el = document.createElement("div");
     el.className = "entry";
     const state = body && body.status ? `<span class="badge ${body.status}">${body.status}</span>` : "";
-    const noteHtml = note ? `<span class="note">${note}</span>` : "";
-    let idline = "";
-    if (body && body.id) {
-      idline = `<div class="idline">id: ${body.id}
-        <button class="secondary small" onclick="fetchPayment('${body.id}')">fetch</button>
-        <button class="secondary small" onclick="refundPayment('${body.id}')">refund</button></div>`;
-    }
     el.innerHTML = `
       <div class="top">
-        <span class="method">${method}</span>
-        <span style="font-family:var(--mono); font-size:0.78rem;">${path}</span>
-        <span class="code ${codeClass(status)}">${status}</span>
-        ${state}${noteHtml}
+        <span class="method">${method}</span><span class="path">${path}</span>
+        <span class="code ${codeClass(status)}">${status}</span>${state}
+        ${note ? `<span class="note">${note}</span>` : ""}
       </div>
-      ${idline}
       <pre>${JSON.stringify(body, null, 2)}</pre>`;
     log.prepend(el);
   }
 
-  async function call(method, path, { headers = {}, body, note } = {}) {
-    try {
-      const res = await fetch(path, {
-        method,
-        headers: { "Content-Type": "application/json", ...headers },
-        body: body ? JSON.stringify(body) : undefined,
-      });
-      let data = null;
-      try { data = await res.json(); } catch { data = { raw: await res.text() }; }
-      addEntry({ method, path, status: res.status, body: data, note });
-      return data;
-    } catch (e) {
-      addEntry({ method, path, status: 0, body: { error: String(e) }, note: "network error" });
+  async function api(method, path, { headers = {}, body, note } = {}) {
+    const res = await fetch(path, {
+      method,
+      headers: { "Content-Type": "application/json", ...headers },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    let data;
+    try { data = await res.json(); } catch { data = { raw: await res.text() }; }
+    logEntry({ method, path, status: res.status, body: data, note });
+    return { status: res.status, data };
+  }
+
+  /* ---------- shop actions ---------- */
+  window.addToCart = (id) => { cart[id] = (cart[id] || 0) + 1; renderCart(); };
+  window.clearCart = () => { for (const k in cart) delete cart[k]; renderCart(); };
+
+  function cartDescription() {
+    return Object.entries(cart).map(([id, q]) => {
+      const p = PRODUCTS.find(x => x.id === id);
+      return `${p.name} × ${q}`;
+    }).join(", ");
+  }
+
+  window.checkout = async () => {
+    const amount = parseFloat(cartTotal().toFixed(2));
+    const items = cartDescription();
+    const idemKey = "order-" + crypto.randomUUID().slice(0, 8) + "-a1";
+    $("pay") && ($("pay").disabled = true);
+    const { data } = await api("POST", "/api/v1/payments", {
+      headers: { "Idempotency-Key": idemKey },
+      body: { amount, currency: "USD", customerId: "shopper-demo", method: $("method").value },
+      note: "checkout · key " + idemKey,
+    });
+    if (data && data.id) {
+      orders.push({ paymentId: data.id, items, amount, status: data.status, idemKey });
+      clearCart();
+      renderOrders();
+      toast(data.status === "SUCCEEDED"
+        ? "✅ Payment succeeded — order placed!"
+        : "⚠️ The gateway failed this one (it is flaky on purpose). Retry it from Your orders.");
+    } else {
+      $("pay") && ($("pay").disabled = false);
+      toast("Request rejected — see the developer console.");
     }
-  }
+  };
 
-  function payload() {
-    return {
-      amount: parseFloat($("amount").value),
-      currency: $("currency").value,
-      customerId: $("customer").value,
-      method: $("method").value,
-    };
-  }
+  // A FAILED payment keeps its idempotency key attached to the failed attempt —
+  // real clients (e.g. Stripe's) start a NEW attempt with a NEW key.
+  window.retryOrder = async (i) => {
+    const o = orders[i];
+    const newKey = o.idemKey.replace(/-a\d+$/, "") + "-a" + (parseInt(o.idemKey.match(/-a(\d+)$/)[1]) + 1);
+    const { data } = await api("POST", "/api/v1/payments", {
+      headers: { "Idempotency-Key": newKey },
+      body: { amount: o.amount, currency: "USD", customerId: "shopper-demo", method: "CARD" },
+      note: "retry · new key " + newKey,
+    });
+    if (data && data.id) {
+      o.paymentId = data.id; o.status = data.status; o.idemKey = newKey;
+      renderOrders();
+      toast(data.status === "SUCCEEDED" ? "✅ Retry went through." : "Still failing — the gateway is having a moment. Try again.");
+    }
+  };
 
-  $("create").addEventListener("click", () =>
-    call("POST", "/api/v1/payments", {
-      headers: { "Idempotency-Key": $("idem").value },
-      body: payload(),
-      note: "key: " + $("idem").value,
-    })
-  );
+  // Same request + same key = same payment back, no second charge.
+  window.duplicateSubmit = async (i) => {
+    const o = orders[i];
+    const { status, data } = await api("POST", "/api/v1/payments", {
+      headers: { "Idempotency-Key": o.idemKey },
+      body: { amount: o.amount, currency: "USD", customerId: "shopper-demo", method: "CARD" },
+      note: "duplicate submit · same key",
+    });
+    if (data && data.id === o.paymentId && status === 200) {
+      toast("🛡️ Same payment returned (HTTP 200), not a new charge — that is the idempotency key doing its job.");
+    }
+  };
 
-  $("replay").addEventListener("click", () =>
-    call("POST", "/api/v1/payments", {
-      headers: { "Idempotency-Key": $("idem").value },
-      body: payload(),
-      note: "replayed key: " + $("idem").value,
-    })
-  );
+  window.refundOrder = async (i) => {
+    const o = orders[i];
+    const { data } = await api("POST", `/api/v1/payments/${o.paymentId}/refund`, { note: "refund order" });
+    if (data && data.status) {
+      o.status = data.status;
+      renderOrders();
+      toast(data.status === "REFUNDED" ? "↩️ Refunded." : "Refund not allowed from this state.");
+    }
+  };
 
-  window.fetchPayment = (id) => call("GET", "/api/v1/payments/" + id);
-  window.refundPayment = (id) => call("POST", "/api/v1/payments/" + id + "/refund", { note: "refund attempt" });
+  renderProducts();
+  renderCart();
+  renderOrders();
 </script>
 </body>
 </html>

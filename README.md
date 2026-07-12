@@ -1,6 +1,6 @@
 # payments-service
 
-**Live demo:** https://payments-service-yzdp.onrender.com — interactive console to create payments, replay idempotency keys, and trigger refunds
+**Live demo:** https://payments-service-yzdp.onrender.com — DevMart, a demo storefront whose checkout runs on this API (idempotent payments, flaky-gateway retries, refunds)
 *(free-tier hosting sleeps when idle — if you see "Not Found", wait ~40s and refresh; the first request wakes it)*
 
 ## Problem Statement
