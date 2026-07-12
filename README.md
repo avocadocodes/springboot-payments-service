@@ -1,7 +1,7 @@
 # payments-service
 
 **Live demo:** https://payments-service-yzdp.onrender.com/swagger-ui.html
-*(free-tier hosting sleeps when idle — if you see "Not Found", wait ~40s and refresh; the first request wakes it)**
+*(free-tier hosting sleeps when idle — if you see "Not Found", wait ~40s and refresh; the first request wakes it)*
 
 ## Problem Statement
 
