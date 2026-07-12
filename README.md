@@ -1,5 +1,8 @@
 # payments-service
 
+**Live demo:** https://payments-service-yzdp.onrender.com/swagger-ui.html
+*(hosted on Render's free tier — the first request after idle takes ~40s to cold-start)*
+
 ## Problem Statement
 
 Payment APIs fail in interesting ways: the same request is submitted twice during a network retry,
